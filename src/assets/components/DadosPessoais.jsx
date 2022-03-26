@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { TextField, Button, Switch, FormControlLabel } from "@mui/material";
-import ValidarCpf from "../ValidaCpf/ValidaCpf"
+import Validacoes from '../models/Validacoes.js';
+import useErros from "../hooks/useErros.js";
 
-function FormularioCadastro({aoEnviar}) {
+function DadosPessoais({ aoEnviar }) {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
-  const [cpfValido, setCpfValido] = useState({cpf:{valido:true,texto:""}})
   const [promocoes, setPromocoes] = useState(true);
   const [novidades, setNovidades] = useState(true);
+  const validacoes = useContext(Validacoes);
+  const [erros, validarCampos] = useErros(validacoes);
   
   return (
     <form
       onSubmit={(event) => {
-        event.preventDefault();    
+        event.preventDefault();
+        aoEnviar({ nome, cpf, promocoes, novidades }, erros);
       }}
     >
       <TextField
@@ -22,38 +25,37 @@ function FormularioCadastro({aoEnviar}) {
         margin="normal"
         onChange={(event) => {
           setNome(event.target.value);
-          }
-        }
-        value = {nome}
+        }}
+        required
+        value={nome}
         variant="outlined"
-      />      
+      />
 
       <TextField
         id="cpf"
-        error={!cpfValido.cpf.valido}
+        error={erros.cpf.valido}
         fullWidth
-        helperText={cpfValido.cpf.texto}
+        helperText={erros.cpf.texto}
         label="CPF:"
         margin="normal"
-        onBlur={(event) => {
-          const cpfValido = ValidarCpf(cpf);
-          setCpfValido({cpf:cpfValido})          
-        }}
+        name="cpf"
+        onBlur={validarCampos}
         onChange={(event) => {
           setCpf(event.target.value);
         }}
+        required
         value={cpf}
         variant="outlined"
       />
 
-      <FormControlLabel            
+      <FormControlLabel
         control={<Switch
           id="promocoes"
           checked={promocoes}
           color="primary" />}
-          onChange={(event) => {
-            setPromocoes(event.target.checked);
-          }}
+        onChange={(event) => {
+          setPromocoes(event.target.checked);
+        }}
         label="Promoções"
       />
 
@@ -62,17 +64,17 @@ function FormularioCadastro({aoEnviar}) {
           id="novidades"
           checked={novidades}
           color="primary" />}
-          onChange={(event) => {
-            setNovidades(event.target.checked);
-          }}
+        onChange={(event) => {
+          setNovidades(event.target.checked);
+        }}
         label="Novidades"
       />
 
       <Button color="primary" type="submit" variant="contained" >
-        Cadastrar
+        Próximo
       </Button>
     </form>
   );
 }
 
-export default FormularioCadastro;
+export default DadosPessoais;
